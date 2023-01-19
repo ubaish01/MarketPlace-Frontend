@@ -1,0 +1,17 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+
+
+$bgClr:rgb(255, 255, 255);
+$logo:rgb(221, 0, 0);
+
+button{
+    cursor: pointer;
+}
