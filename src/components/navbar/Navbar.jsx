@@ -3,8 +3,12 @@ import './navbar.scss';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
+    var user = useSelector((state) => state.user.currentUser);
+    console.log(user);
+
     return (
         <div className="navbar">
             <div className="left">
@@ -16,7 +20,7 @@ const Navbar = () => {
                 </Link>
                 <div className="city">
                     <LocationOnOutlinedIcon />
-                    <span>Moradabad</span>
+                    <span>{user.city}</span>
                 </div>
                 <div className="search">
                     <SearchOutlinedIcon />
@@ -24,9 +28,9 @@ const Navbar = () => {
                 </div>
             </div>
             <div className="right">
-                <img src="https://avatars.githubusercontent.com/u/109113347?v=4" alt="" />
+                <img src={user.dp} alt="" />
                 <div className="name">
-                    <span>ubaish</span>
+                    <span>{user.name}</span>
                 </div>
             </div>
         </div>

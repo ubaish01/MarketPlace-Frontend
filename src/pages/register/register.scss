@@ -47,8 +47,13 @@
               padding: 10px 10px;
             //   background-color: aqua;
               }
+
+              div{
+                display: flex;
+                gap: 20px;
+              }
               
-              button {
+              button,input[type="submit"] {
                 width: 100%;
                 padding: 10px;
                 border: none;
@@ -56,6 +61,9 @@
                 color: white;
                 font-weight: bold;
                 cursor: pointer;
+              }
+              input[type="submit"] {
+                width: 50%;
               }
             }
     }

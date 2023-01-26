@@ -15,11 +15,29 @@ import sports from "../../assets/icons/sports-icon.png"
 import referAndEarn from "../../assets/icons/refer-and-earn-icon.png"
 import editProfile from "../../assets/icons/setting-icon.png"
 import aboutUs from "../../assets/icons/about-us-icon.png"
-import logOut from "../../assets/icons/logout-icon.png"
+import logOutIcon from "../../assets/icons/logout-icon.png"
+import { useDispatch } from 'react-redux';
+import { logout } from "../../redux/userRedux";
+import { useSelector } from "react-redux";
+import { updateUser } from '../../redux/apiCalls';
+
+
+
 
 
 const LeftBar = () => {
-    const userType = "seller";// working fine
+    var user = useSelector((state) => state.user.currentUser);
+    const isSeller = true;// working fine
+    const [name, setName] = useState(user.name);
+    const [email, setEmail] = useState(user.email);
+    const [phone, setPhone] = useState(user.phone);
+    const [city, setCity] = useState(user.city);
+    const [description, setDescription] = useState(user.description);
+    const [address, setAddress] = useState(user.address);
+    const [openingTime, setOpeningTIme] = useState(user.openingTime);
+    const [closingTime, setClosingTime] = useState(user.closingTime);
+    const [profileImage, setProfileImage] = useState();
+    const [profileImageUrl, setProfileImageUrl] = useState(user.dp);
 
     const navigate = useNavigate();
     const [productModalOpen, setProductModalOpen] = useState(false);
@@ -27,6 +45,7 @@ const LeftBar = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState();
+    const dispatch = useDispatch();
 
     const closeAddProductModal = () => {
         setProductModalOpen(false);
@@ -48,6 +67,42 @@ const LeftBar = () => {
     }
     function handleCategory(data) {
         setSelectedCategory(data);
+    }
+
+    const updateDetails = async(e) => {
+        e.preventDefault();
+        const data = new FormData();
+        data.append("file", profileImage);
+        data.append("upload_preset", "marketplace");
+        data.append("cloud_name", "dds67aw2r");
+        await fetch("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", {
+            method: "POST",
+            body: data
+        })
+            .then(res => res.json())
+            .then(data => {
+                setProfileImageUrl(data.url);
+                const body = {
+                    "id": user._id,
+                    "name": name,
+                    "email": email,
+                    "phone": phone,
+                    "city": city,
+                    "address": address,
+                    "description": description,
+                    "openingTime": openingTime,
+                    "closingTime": closingTime,
+                    "isSeller": isSeller,
+                    "dp": profileImageUrl
+                }
+
+                updateUser(dispatch, body);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+
     }
 
     const customStyles = {
@@ -122,6 +177,10 @@ const LeftBar = () => {
         },
     ]
 
+    const handleLogout = () => {
+        dispatch(logout());
+    }
+
     return (
         <div className="leftbar">
             <div className="categories">
@@ -150,21 +209,21 @@ const LeftBar = () => {
                         <img src={aboutUs} alt="" />
                         <span>About Us</span>
                     </div>
-                    <div className="category-item"  onClick={openProfiletModal}>
+                    <div className="category-item" onClick={openProfiletModal}>
                         <img src={editProfile} alt="" />
                         <span>Edit Profile</span>
                     </div>
                     {
-                        userType==="seller"
+                        isSeller
                         &&
-                        
-                    <div className="category-item" onClick={openAddProductModal}>
-                    <img src={editProfile} alt="" />
-                    <span>Add Product</span>
-                </div>
+
+                        <div className="category-item" onClick={openAddProductModal}>
+                            <img src={editProfile} alt="" />
+                            <span>Add Product</span>
+                        </div>
                     }
-                    <div className="category-item">
-                        <img src={logOut} alt="" />
+                    <div className="category-item" onClick={() => { handleLogout() }}>
+                        <img src={logOutIcon} alt="" />
                         <span>LogOut</span>
                     </div>
                 </div>
@@ -233,27 +292,26 @@ const LeftBar = () => {
                             <button onClick={closeProfiletModal}>X</button>
                         </div>
                         <form >
-                            <input type="text" placeholder='Name' />
-                            <input type="email" placeholder='email' />
-                            <input type="text" placeholder='Contact' />
-                            <input type="text" placeholder='City' />
-                            <input type="text" placeholder='Price' />
+                            <input type="text" placeholder='Name' value={name} onChange={(e) => { setName(e.target.value) }} />
+                            <input type="email" placeholder='email' value={email} onChange={(e) => { setEmail(e.target.value) }} />
+                            <input type="text" placeholder='Contact' value={phone} onChange={(e) => { setPhone(e.target.value) }} />
+                            <input type="text" placeholder='City' value={city} onChange={(e) => { setCity(e.target.value) }} />
                             {
-                                userType==="seller"
+                                isSeller
                                 &&
                                 <>
-                            <input type="text" placeholder='About the Shop' />
-                            <input type="text" placeholder='Address' />
-                            <input type="text" placeholder='Opening Time' />
-                            <input type="text" placeholder='Closing Time' />
+                                    <input type="text" placeholder='About the Shop' value={description} onChange={(e) => { setDescription(e.target.value) }} />
+                                    <input type="text" placeholder='Address' value={address} onChange={(e) => { setAddress(e.target.value) }} />
+                                    <input type="text" placeholder='Opening Time' value={openingTime} onChange={(e) => { setOpeningTIme(e.target.value) }} />
+                                    <input type="text" placeholder='Closing Time' value={closingTime} onChange={(e) => { setClosingTime(e.target.value) }} />
 
                                 </>
                             }
                             <div className="prd-img">
                                 <label>Select Your Profile image</label>
-                                <input type="file" />
+                                <input type="file" onChange={(e) => { setProfileImage(e.target.files[0]) }} />
                             </div>
-                            <button>Update Profile</button>
+                            <button onClick={(e) => { updateDetails(e) }}>Update Profile</button>
                         </form>
                     </div>
 

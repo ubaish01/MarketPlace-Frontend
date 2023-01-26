@@ -13,17 +13,27 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Home from "./pages/home/Home";
 import Product from "./pages/product/Product";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 function App() {
-  const currentUser = true;
-  const [isOpenAddProductModal,setIsOpenAddProductModal] = useState(true);
+  var currentUser = useSelector ((state) => state.user.currentUser);
+  console.log(currentUser);
+  
+  useEffect(() => {
+    console.log("HEREEEEEEEE");
+    if (localStorage.getItem("token")) {
+      currentUser = true;
+      console.log("i ammm");
+    }
+  }, [])
+  const [isOpenAddProductModal, setIsOpenAddProductModal] = useState(true);
   const Layout = () => {
     return (
       <div>
         <Navbar />
         <div style={{ display: "flex" }}>
-          <LeftBar/>
+          <LeftBar />
           <div style={{
             flex: 6, overflow: "auto",
             maxHeight: "100vh"
