@@ -19,7 +19,8 @@ import logOutIcon from "../../assets/icons/logout-icon.png"
 import { useDispatch } from 'react-redux';
 import { logout } from "../../redux/userRedux";
 import { useSelector } from "react-redux";
-import { updateUser } from '../../redux/apiCalls';
+import { createNewProduct, updateUser } from '../../redux/apiCalls';
+import axios from 'axios';
 
 
 
@@ -27,7 +28,7 @@ import { updateUser } from '../../redux/apiCalls';
 
 const LeftBar = () => {
     var user = useSelector((state) => state.user.currentUser);
-    const isSeller = true;// working fine
+    const [isSeller,setIsSeller] = useState(user.isSeller)
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
     const [phone, setPhone] = useState(user.phone);
@@ -38,6 +39,11 @@ const LeftBar = () => {
     const [closingTime, setClosingTime] = useState(user.closingTime);
     const [profileImage, setProfileImage] = useState();
     const [profileImageUrl, setProfileImageUrl] = useState(user.dp);
+    const [productImageUrl, setProductImageUrl] = useState(user.dp);
+
+    const [productName,setProductName] = useState();
+    const [productPrice,setProductPrice] = useState();
+    const [productImage,setProductImage] = useState();
 
     const navigate = useNavigate();
     const [productModalOpen, setProductModalOpen] = useState(false);
@@ -45,6 +51,7 @@ const LeftBar = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState();
+    const [isLoading, setIsLoading] = useState(0)
     const dispatch = useDispatch();
 
     const closeAddProductModal = () => {
@@ -69,7 +76,77 @@ const LeftBar = () => {
         setSelectedCategory(data);
     }
 
-    const updateDetails = async(e) => {
+    const handleDrop = (productImages) => {
+        // Push all the axios request promise into a single array
+        const uploaders = productImages.map(file => {
+            // Initial FormData
+            const formData = new FormData();
+            formData.append("file", file);
+            data.append("upload_preset", "marketplace");
+            data.append("cloud_name", "dds67aw2r");
+
+            // Make an AJAX upload request using Axios (replace Cloudinary URL below with your own)
+            return axios.post("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", formData, {
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+            }).then(response => {
+                const data = response.data;
+                const fileURL = data.secure_url // You should store this URL for future references in your app
+                console.log(data);
+            })
+        });
+
+        // Once all the files are uploaded 
+        axios.all(uploaders).then((res) => {
+            console.log(res)
+        });
+    }
+
+    const createProduct = async(e) => {
+        e.preventDefault();
+        const data = new FormData();
+        data.append("file", productImage);
+        data.append("upload_preset", "marketplace");
+        data.append("cloud_name", "dds67aw2r");
+        await fetch("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", {
+            method: "POST",
+            body: data
+        })
+            .then(res => res.json())
+            .then(data => {
+                setProductImageUrl(data.url);
+                const body = {
+                    "title":productName,
+                    "category":selectedCategory.value,
+                    "color":selectedColors,
+                    "size":selectedSizes,
+                    "price":productPrice,
+                    "photo":[productImageUrl],
+                    "seller_id":user._id,
+                    "seller_name":user.name,
+                    "city":user.city,
+                }
+                console.log(body);
+                
+                createNewProduct(body)
+                .then(response=>{
+                    alert(response.data.message);
+                    setProfileModal(false);
+                })
+                .catch(err=>{
+                    alert(err.message);
+                    setProfileModal(false);
+                })
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+
+
+    }
+
+    const updateDetails = async (e) => {
         e.preventDefault();
         const data = new FormData();
         data.append("file", profileImage);
@@ -97,6 +174,7 @@ const LeftBar = () => {
                 }
 
                 updateUser(dispatch, body);
+                setProfileModal(false);
             })
             .catch(err => {
                 console.log(err);
@@ -188,7 +266,7 @@ const LeftBar = () => {
                 <div className="category-items">
                     {
                         categories.map(category =>
-                            <div className="category-item">
+                            <div key={category.name} className="category-item">
                                 <img src={category.icon} alt="" />
                                 <span>{category.name}</span>
                             </div>
@@ -197,7 +275,7 @@ const LeftBar = () => {
                     }
                 </div>
             </div>
-            <div class="break" />
+            <div className="break" />
             <div className="categories">
                 <h3>Options</h3>
                 <div className="category-items">
@@ -240,7 +318,7 @@ const LeftBar = () => {
                             <button onClick={closeAddProductModal}>X</button>
                         </div>
                         <form >
-                            <input type="text" placeholder='Product name' />
+                            <input type="text" placeholder='Product name' onChange={(e)=>{setProductName(e.target.value)}} />
                             <div className="dropdown-container">
                                 <Select
                                     options={category}
@@ -270,12 +348,12 @@ const LeftBar = () => {
                                     isMulti
                                 />
                             </div>
-                            <input type="text" placeholder='Price' />
+                            <input type="number" placeholder='Price' onChange={(e)=>{setProductPrice(e.target.value)}} />
                             <div className="prd-img">
                                 <label>Select minimum 3 photos</label>
-                                <input type="file" />
+                                <input type="file" onChange={(e)=>{setProductImage(e.target.files[0])}} />
                             </div>
-                            <button>Add Product</button>
+                            <button onClick={(e)=>{createProduct(e)}}>Add Product</button>
                         </form>
                     </div>
 

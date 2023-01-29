@@ -4,7 +4,7 @@
     gap: 20px;
     overflow: auto;
     max-height: 92vh;
-    
+
 
     .top {
         display: flex;
@@ -59,11 +59,11 @@
                 border-radius: 8px;
             }
         }
-        
-        .info{
+
+        .info {
             display: flex;
             flex-direction: column;
-            width: 90%;
+            width: 87%;
             height: 80px;
             background-color: antiquewhite;
             border-radius: 8px;
@@ -71,57 +71,59 @@
             padding: 8px;
             padding-left: 25px;
 
-            span{
+            span {
                 font-size: 20px;
             }
         }
     }
 
-        h1{
-            text-align: center;
-        }
+    h1 {
+        text-align: center;
+    }
 
-        .products{
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            min-width: 40%;
-            
-            .product{
-                img{
-                    height: 280px;
-                    width: 215px;
-                    margin-top: 5px;
-                    border-radius: 10px;
-                }
+    .products {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        min-width: 40%;
 
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 5px;
-                height: 370px;
-                width: 230px;
-                background-color: #dde4f6;
-                border-radius: 8px;
+        .product {
+            img {
+                height: 260px !important;
+                width: 215px !important;
+                margin-top: 5px;
+                border-radius: 10px;
+                object-fit: cover;
 
-                span{
-                    font-size: 22px;
-                    font-weight: 500;
-                }
-                
-                button{
-                    width: 120px;
-                    height: 25px;
-                    background-color: yellow;
-                    border-radius: 8px;
-                    border: none;
-                    font-weight: 700;
-                    margin-bottom: 5px;
-                }
             }
 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            height: 370px;
+            width: 230px;
+            background-color: #dde4f6;
+            border-radius: 8px;
+
+            span {
+                font-size: 22px;
+                font-weight: 500;
+            }
+
+            button {
+                width: 120px !important;
+                height: 25px !important;
+                background-color: yellow;
+                border-radius: 8px;
+                border: none;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
         }
+
     }
+}

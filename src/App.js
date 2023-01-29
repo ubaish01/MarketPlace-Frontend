@@ -18,10 +18,9 @@ import { useSelector } from "react-redux";
 
 function App() {
   var currentUser = useSelector ((state) => state.user.currentUser);
-  console.log(currentUser);
+  
   
   useEffect(() => {
-    console.log("HEREEEEEEEE");
     if (localStorage.getItem("token")) {
       currentUser = true;
       console.log("i ammm");
