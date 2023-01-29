@@ -63,7 +63,7 @@ function App() {
       ),
       children: [
         {
-          path: "/",
+          path: "/:category",
           element: <Home />,
         },
         {

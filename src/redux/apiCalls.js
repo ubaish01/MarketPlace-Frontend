@@ -23,7 +23,7 @@ export const updateUser = async (dispatch, user) => {
     }
 };
 
-export const getProducts = async(city,shopId=null,category=null) =>{
+export const GetProducts = async(city,shopId=null,category=null) =>{
     return await userRequest.get(`product/shop?city=${city}&id=${shopId}&category=${category}`);
 }
 
@@ -31,7 +31,7 @@ export const getProduct = async(id) =>{
     return await userRequest.get(`product?id=${id}`);
 }
 
-export const getSeller = async(seller_id) =>{
+export const GetSeller = async(seller_id) =>{
     return await userRequest.get(`user/seller?id=${seller_id}`);
 }
 export const createNewProduct = async(body) =>{
@@ -40,4 +40,11 @@ export const createNewProduct = async(body) =>{
 
 export const register = (body) =>{
     return publicRequest.post("auth/register",body);
+}
+
+export const GetSellerReviews = (sellerId) =>{
+    return userRequest.get(`reviews/seller?seller_id=${sellerId}`);
+}
+export const PostReview = (body) =>{
+    return userRequest.post("reviews/seller",body);
 }

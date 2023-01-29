@@ -2,22 +2,24 @@ import React from 'react'
 import './home.scss'
 import { Rating } from 'react-simple-star-rating'
 import { useEffect } from 'react'
-import { getProducts } from '../../redux/apiCalls'
+import { GetProducts } from '../../redux/apiCalls'
 import { useSelector } from 'react-redux'
 import { useState } from 'react'
 import { avgRating } from '../../helperFunctions'
 import Loading from '../../components/loading/Loading'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const Home = () => {
     var currentUser = useSelector((state) => state.user.currentUser);
     var isFetching = useSelector((state) => state.user.isFetching);
     const [isLoading, setIsLoading] = useState(0);
     const navigate = useNavigate()
+    const params = useParams();
+    // const [category,setCategory] = useState(params.category)
 
     useEffect(() => {
         setIsLoading(1);
-        getProducts(currentUser.city)
+        GetProducts(currentUser.city,null,params.category!=="home"?params.category:null)
             .then(res => {
                 console.log(res.data);
                 setFeaturedProducts(res.data);
@@ -29,12 +31,23 @@ const Home = () => {
                 setIsLoading(0);
 
             })
-    }, [])
+    }, [params])
 
     const visitSeller = (e, sellerId) => {
         e.preventDefault();
         navigate(`/shop/${sellerId}`);
     }
+
+    const categories = {
+        "mens_wear":"Mens Wear",
+        "womens_wear":"Women's Wear",
+        "foowear":"FootWear",
+        "grocery":"Grocery" ,
+        "cosmetics":"Cosmetics",
+        "eye_wear":"Eye Wear",
+        "stationary":"Stationary" ,
+        "sports":"Sports"
+    };
 
     const [featuredProducts, setFeaturedProducts] = useState([
         {
@@ -76,7 +89,14 @@ const Home = () => {
             :
 
             <div className="home">
+                {
+                    params.category==="home"
+                    ?
+                    
                 <h3>Featured Products</h3>
+                :
+                <h3>Featured Products from "{categories[params.category]}"</h3>
+                }
                 <div className="products">
                     {
                         featuredProducts.map(product =>

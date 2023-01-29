@@ -53,7 +53,7 @@ const Login = () => {
               </form>
             </div>
           </div> :
-          <Navigate to="/" />
+          <Navigate to="/home" />
       }
     </div>
 

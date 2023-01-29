@@ -92,7 +92,7 @@
 
         .product {
             img {
-                height: 260px !important;
+                height: 240px !important;
                 width: 215px !important;
                 margin-top: 5px;
                 border-radius: 10px;
@@ -108,10 +108,12 @@
             width: 230px;
             background-color: #dde4f6;
             border-radius: 8px;
+            
 
             span {
                 font-size: 22px;
                 font-weight: 500;
+                margin: 0 auto;
             }
 
             button {
@@ -126,4 +128,97 @@
         }
 
     }
+}
+
+.reviews-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    .write-a-review{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        h1{
+            font-size: 65px;
+            font-weight: bolder;
+        }
+        p{
+            font-size: 27px;
+        }
+        button{
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            height: 40px;
+            border: none;
+            font-size: 25px;
+            padding: 8px;
+            font-weight: 600;
+            background-color: yellow;
+            border-radius: 8px;
+        }
+    }
+
+    .reviews{
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        .review{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            justify-content: start;
+            margin: 15px 120px;
+            // gap: 15px;
+            
+
+            .upper{
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                img{
+                    height: 50px;
+                    width: 50px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+                h3{
+                    font-size: 28px;
+                }
+            }
+            .review-mid{
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                div{
+                    font-size: 18px;
+                    font-weight: 700;
+                }
+            }
+
+            .original-images{
+                margin-top: 8px;
+                display: flex;
+                // align-items: center;
+                justify-content: center;
+                img{
+                    height: 280px;
+                    width: 220px;
+                    object-fit: cover;
+                }
+            }
+            .review-desc{
+                margin-top: 12px;
+            }
+        }
+    }
+
+
 }

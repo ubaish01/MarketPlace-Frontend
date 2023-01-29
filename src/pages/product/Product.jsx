@@ -31,7 +31,7 @@ const Product = () => {
         getProduct(id)
             .then(response => {
                 setProduct(response.data);
-                console.log(product);
+                console.log(response.data);
             })
             .catch(error => {
                 console.log(error.message);
@@ -54,8 +54,8 @@ const Product = () => {
                     <img src={product.photos[0]} alt="" />
                 </div>
                 <div className="info">
-                    <span className="title">puma fc jacket white</span>
-                    <span className="seller">Kaif Collection</span>
+                    <span className="title">{product.title}</span>
+                    <span className="seller">{product.seller_name}</span>
                     <div className="item-info">
                         <span>
                             Available Sizes :

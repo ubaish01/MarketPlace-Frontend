@@ -39,11 +39,13 @@ const LeftBar = () => {
     const [closingTime, setClosingTime] = useState(user.closingTime);
     const [profileImage, setProfileImage] = useState();
     const [profileImageUrl, setProfileImageUrl] = useState(user.dp);
-    const [productImageUrl, setProductImageUrl] = useState(user.dp);
+    const [productImageUrl, setProductImageUrl] = useState();
 
     const [productName,setProductName] = useState();
     const [productPrice,setProductPrice] = useState();
     const [productImage,setProductImage] = useState();
+    const [productColors,setProductColors] = useState();
+    const [productSizes,setProductSizes] = useState();
 
     const navigate = useNavigate();
     const [productModalOpen, setProductModalOpen] = useState(false);
@@ -68,9 +70,19 @@ const LeftBar = () => {
     }
     function handleColors(data) {
         setSelectedColors(data);
+        var items = [];
+        data.map(item=>{
+            items.push(item.value);
+        })
+        setProductColors(items);
     }
     function handleSize(data) {
         setSelectedSizes(data);
+        var items = [];
+        data.map(item=>{
+            items.push(item.value);
+        })
+        setProductSizes(items);
     }
     function handleCategory(data) {
         setSelectedCategory(data);
@@ -114,19 +126,20 @@ const LeftBar = () => {
             .then(res => res.json())
             .then(data => {
                 setProductImageUrl(data.url);
+                console.log(productImageUrl);
                 const body = {
                     "title":productName,
-                    "category":selectedCategory.value,
-                    "color":selectedColors,
-                    "size":selectedSizes,
+                    "category":selectedCategory.value.toLowerCase(),
+                    "color":productColors,
+                    "size":productSizes,
                     "price":productPrice,
-                    "photo":[productImageUrl],
+                    "photos":[productImageUrl],
                     "seller_id":user._id,
                     "seller_name":user.name,
                     "city":user.city,
                 }
-                console.log(body);
                 
+                console.log(body);
                 createNewProduct(body)
                 .then(response=>{
                     alert(response.data.message);
@@ -195,12 +208,12 @@ const LeftBar = () => {
     };
 
     const colorsList = [
-        { value: "red", label: "Red" },
-        { value: "green", label: "Green" },
-        { value: "yellow", label: "Yellow" },
-        { value: "blue", label: "Blue" },
-        { value: "white", label: "White" },
-        { value: "NA", label: "Not Applicable" }
+        { label: "Red", value: "RED" },
+        { label: "Green", value: "GREEN" },
+        { label: "Yellow", value: "YELLOW" },
+        { label: "Blue", value: "BLUE" },
+        { label: "White", value: "WHITE" },
+        { label: "Not Applicable", value: "NA" }
     ];
     const sizeList = [
         { value: "S", label: "S" },
@@ -210,6 +223,10 @@ const LeftBar = () => {
         { value: "XXL", label: "XXL" },
         { value: "NA", label: "Not Applicable" }
     ];
+
+    
+
+
     const category = [
         { value: "MENS_WEAR", label: "Mens Wear" },
         { value: "WOMENS_WEAR", label: "Women's Wear" },
@@ -222,35 +239,43 @@ const LeftBar = () => {
     ];
     const categories = [
         {
-            name: "Men's Wear",
+            label: "Men's Wear",
+            value: "mens_wear",
             icon: mensWear
         },
         {
-            name: "Women's Wear",
+            label: "Women's Wear",
+            value: "womens_wear",
             icon: womensWear
         },
         {
-            name: "Footwear",
+            label: "Footwear",
+            value: "footwear",
             icon: footWear
         },
         {
-            name: "Grocery",
+            label: "Grocery",
+            value: "grocery",
             icon: grocery
         },
         {
-            name: "Cosmetics",
+            label: "Cosmetics",
+            value: "cosmetics",
             icon: cosmetics
         },
         {
-            name: "Stationary",
+            label: "Stationary",
+            value: "stationary",
             icon: stationary
         },
         {
-            name: "Eye Wear",
+            label: "Eye Wear",
+            value: "eye_wear",
             icon: googles
         },
         {
-            name: "Sports",
+            label: "Sports",
+            value: "sports",
             icon: sports
         },
     ]
@@ -266,9 +291,9 @@ const LeftBar = () => {
                 <div className="category-items">
                     {
                         categories.map(category =>
-                            <div key={category.name} className="category-item">
+                            <div key={category.value} onClick={()=>{navigate(`/${category.value}`)}} className="category-item">
                                 <img src={category.icon} alt="" />
-                                <span>{category.name}</span>
+                                <span>{category.label}</span>
                             </div>
 
                         )
