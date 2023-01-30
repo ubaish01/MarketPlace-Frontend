@@ -20,7 +20,7 @@ const Shop = () => {
     const [products, setProducts] = useState([]);
     // const [purchasedProducts, setPurchasedProducts] = useState([]);
     const navigate = useNavigate();
-    const [openReviewModal, setOpenReviewModal] = useState(true);
+    const [openReviewModal, setOpenReviewModal] = useState(false);
     const [sellerReviews, setSellerReviews] = useState([])
 
     const [briefAboutSeller, setBriefAboutSeller] = useState();

@@ -4,6 +4,7 @@ import {
   RouterProvider,
   Outlet,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
 import LeftBar from "./components/leftBar/LeftBar";
@@ -18,14 +19,11 @@ import { useSelector } from "react-redux";
 
 function App() {
   var currentUser = useSelector ((state) => state.user.currentUser);
-  
-  
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      currentUser = true;
-      console.log("i ammm");
-    }
-  }, [])
+  // const navigate = useNavigate();
+  // useEffect(()=>{
+  //   navigate("/home")
+  // },[])
+
   const [isOpenAddProductModal, setIsOpenAddProductModal] = useState(true);
   const Layout = () => {
     return (
@@ -62,6 +60,10 @@ function App() {
         </ProtectedRoute>
       ),
       children: [
+        {
+          path: "/",
+          element: <Home />,
+        },
         {
           path: "/:category",
           element: <Home />,

@@ -28,7 +28,7 @@ export const GetProducts = async(city,shopId=null,category=null) =>{
 }
 
 export const getProduct = async(id) =>{
-    return await userRequest.get(`product?id=${id}`);
+    return await userRequest.get(`product/${id}`);
 }
 
 export const GetSeller = async(seller_id) =>{
