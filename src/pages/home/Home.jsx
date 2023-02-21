@@ -9,6 +9,7 @@ import { avgRating } from '../../helperFunctions'
 import Loading from '../../components/loading/Loading'
 import { useNavigate, useParams } from 'react-router-dom'
 
+
 const Home = () => {
     var currentUser = useSelector((state) => state.user.currentUser);
     var isFetching = useSelector((state) => state.user.isFetching);
@@ -17,6 +18,16 @@ const Home = () => {
     const params = useParams();
     // const [category,setCategory] = useState(params.category)
 
+    const numberOfItems=(obj)=>{
+        var count = 0;
+        for(var c in obj)
+        {
+            count++;
+        }
+
+        return count;
+    }
+
     useEffect(() => {
         setIsLoading(1);
         GetProducts(currentUser.city,null,params.category!=="home"?params.category:null)
@@ -24,6 +35,7 @@ const Home = () => {
                 console.log(res.data);
                 setFeaturedProducts(res.data);
                 setIsLoading(0);
+                console.log(numberOfItems(params));
 
             })
             .catch(err => {
@@ -87,10 +99,11 @@ const Home = () => {
             ?
             <Loading />
             :
-
+            featuredProducts.length>0
+            ?
             <div className="home">
                 {
-                    params.category==="home"
+                    (numberOfItems(params) === 0 || params.category==="home" )
                     ?
                     
                 <h3>Featured Products</h3>
@@ -126,6 +139,11 @@ const Home = () => {
                         )
                     }
                 </div>
+            </div>
+            :
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",marginTop:"65px",fontSize:"25px"}}>
+                <div>No registered shops found !</div>
+                <div>Make sure you have entered a valid city</div>
             </div>
     )
 }

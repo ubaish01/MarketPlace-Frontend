@@ -5,8 +5,10 @@ export const login = async (dispatch, user) => {
     try {
         const res = await publicRequest.post("/auth/login", user);
         dispatch(loginSuccess(res.data));
+        return res;
     } catch (err) {
         dispatch(loginFailure());
+        return err;
     }
 };
 export const updateUser = async (dispatch, user) => {
@@ -30,6 +32,9 @@ export const GetProducts = async(city,shopId=null,category=null) =>{
 export const getProduct = async(id) =>{
     return await userRequest.get(`product/${id}`);
 }
+export const getFeaturedSellers = async(city) =>{
+    return await userRequest.get(`user/shop/featured/${city}`);
+}
 
 export const GetSeller = async(seller_id) =>{
     return await userRequest.get(`user/seller?id=${seller_id}`);
@@ -47,4 +52,13 @@ export const GetSellerReviews = (sellerId) =>{
 }
 export const PostReview = (body) =>{
     return userRequest.post("reviews/seller",body);
+}
+export const RequestCallBack = (body) =>{
+    return userRequest.put(`/mail`,body);
+}
+export const sendOtp = (body) =>{
+    return userRequest.post(`/mail/otp`,body);
+}
+export const verifyOtp = (body) =>{
+    return userRequest.post(`/mail/verify`,body);
 }

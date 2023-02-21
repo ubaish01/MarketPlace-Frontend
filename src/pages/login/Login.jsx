@@ -9,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isSeller, setIsSeller] = useState(false);
   const { isFetching, error } = useSelector((state) => state.user);
+  const [showError,setShowError] = useState();
   var currentUser = useSelector((state) => state.user.currentUser);
 
 
@@ -23,6 +24,7 @@ const Login = () => {
     }
 
     login(dispatch, body)
+    setShowError(error);
     console.log("HERE");
   }
   return (
@@ -45,8 +47,8 @@ const Login = () => {
                 <input type="password" placeholder='Password' onChange={(e) => { setPassword(e.target.value) }} />
                 <button disabled={isFetching} onClick={(e) => { handleLogin(e) }}>Login</button>
                 {
-                  error ?
-                <span className="error">Something went wrong ! try again</span>
+                  showError ?
+                <span className="error">Incorrect email or password</span>
                   :''
                 }
                 <span>Don't have account ? <Link to="/register">Register</Link></span>

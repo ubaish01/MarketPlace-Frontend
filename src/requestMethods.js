@@ -1,7 +1,14 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/";
-const TOKEN =  JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user).currentUser.token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzZDJjNmI4ZDZlZGE3NmFjYmY0YWIwMSIsImlzU2VsbGVyIjp0cnVlLCJpYXQiOjE2NzQ3NjE4ODMsImV4cCI6MTY3NTAyMTA4M30.8cpggUXgvfCBurNE_GmI47JVd2Tc8cCRmpVFeedTSdY";
+localStorage.getItem("persist:root")
+
+const BASE_URL = "https://backend-mp.vercel.app/api/";
+let TOKEN =  "";
+
+if(localStorage.getItem("persist:root") && JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user).currentUser)
+{
+    TOKEN = JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user).currentUser.token;
+}
 
 // const user = JSON.parse(localStorage.getItem("persist:root"))?.user;
 // const currentUser = user && JSON.parse(user).currentUser;

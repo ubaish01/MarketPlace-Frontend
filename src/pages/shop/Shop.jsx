@@ -6,28 +6,35 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { GetProducts, getProducts, GetSeller, getSeller, GetSellerReviews, PostReview } from '../../redux/apiCalls';
 import { useState } from 'react';
-import { avgRating } from '../../helperFunctions';
+import { avgRating, showDate } from '../../helperFunctions';
 import { useSelector } from 'react-redux';
 import Select from 'react-select'
+import Loading from '../../components/loading/Loading';
 
 
 
 const Shop = () => {
     var user = useSelector((state) => state.user.currentUser);
+    var productList = []
+
 
     const params = useParams();
     const [shop, setShop] = useState({});
     const [products, setProducts] = useState([]);
+    const [allProducts, setAllProducts] = useState();
     // const [purchasedProducts, setPurchasedProducts] = useState([]);
     const navigate = useNavigate();
     const [openReviewModal, setOpenReviewModal] = useState(false);
     const [sellerReviews, setSellerReviews] = useState([])
 
     const [briefAboutSeller, setBriefAboutSeller] = useState();
-    const [inputSellerRating, setInputSellerRating] = useState();
-    const [todayData, setTodaysDate] = useState();
-    const [purchasedProducts, setPurchasedProducts] = useState();
+    const [inputSellerRating, setInputSellerRating] = useState(0);
+    const [purchasedProducts, setPurchasedProducts] = useState([]);
     const [reviewDescription, setReviewDescription] = useState();
+    const [productImage, setProductImage] = useState();
+    const [productImageUrl, setProductImageUrl] = useState();
+    const [boughItems, setBoughtItems] = useState([]);
+    const [isLoading,setIsLoading] = useState(false);
 
     const customStyles = {
         content: {
@@ -40,19 +47,38 @@ const Shop = () => {
         },
     };
 
-
-
     useEffect(() => {
+        setIsLoading(true);
         getProducts();
         getSeller();
+        setIsLoading(false);
 
-    }, [])
+    }, [params.id])
+
+    function handlePurchasedProducts(data) {
+        // console.log(data)
+
+        setPurchasedProducts(data);
+        var items = [];
+        data.map(item => {
+            items.push(item.value);
+        })
+
+        setBoughtItems(items);
+    }
 
     const getProducts = () => {
         GetProducts("moradabad", params.id)
             .then(res => {
                 setProducts(res.data)
-                console.log(products)
+                var i = 0;
+                res.data.forEach(item => {
+                    productList[i] = { label: item.title, value: item.title };
+                    i++;
+                })
+                console.log("productList")
+                console.log(productList)
+                setAllProducts(productList);
             })
             .catch(error => {
                 console.log(error.message)
@@ -83,31 +109,78 @@ const Shop = () => {
             })
     }
 
-    const postReview = (e) => {
-        e.preventDefault();
 
-        const body = {
-            "seller_id": shop._id,
-            "reviewer_name": user.name,
-            "one_liner": briefAboutSeller,
-            "reviewer_dp": user.dp,
-            "rating": inputSellerRating,
-            "submitted_date": todayData,
-            "desc": reviewDescription,
-            "purchased_products": [purchasedProducts]
+    const postReview = async (e) => {
+        setIsLoading(true);
+        e.preventDefault();
+        if (productImage) {
+            const data = new FormData();
+            data.append("file", productImage);
+            data.append("upload_preset", "marketplace");
+            data.append("cloud_name", "dds67aw2r");
+            await fetch("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", {
+                method: "POST",
+                body: data
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setProductImageUrl(data.url);
+                    console.log(productImageUrl);
+
+                    const body = {
+                        "seller_id": shop._id,
+                        "reviewer_name": user.name,
+                        "one_liner": briefAboutSeller,
+                        "reviewer_dp": user.dp,
+                        "rating": parseInt(inputSellerRating),
+                        "desc": reviewDescription,
+                        "purchased_products": boughItems,
+                        "item_image": data.url || "none"
+                    }
+
+                    PostReview(body)
+                        .then(res => {
+                            setOpenReviewModal(false);
+                            alert(res.data.message);
+                            setIsLoading(false);
+                        })
+                        .catch(err => {
+                            setOpenReviewModal(false);
+                            alert(err.message);
+                        })
+
+
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+        else
+        {
+            const body = {
+                "seller_id": shop._id,
+                "reviewer_name": user.name,
+                "one_liner": briefAboutSeller,
+                "reviewer_dp": user.dp,
+                "rating": parseInt(inputSellerRating),
+                "desc": reviewDescription,
+                "purchased_products": boughItems
+            }
+
+            PostReview(body)
+                .then(res => {
+                    setOpenReviewModal(false);
+                    alert(res.data.message);
+                    setIsLoading(false);
+                })
+                .catch(err => {
+                    setOpenReviewModal(false);
+                    alert(err.message);
+                })
         }
 
-        PostReview(body)
-        .then(res=>{
-            setOpenReviewModal(false);
-            alert(res.data.message);
-        })
-        .catch(err=>{
-            setOpenReviewModal(false);
-            alert(err.message);
-        })
-
-
+        console.log(purchasedProducts);
+        setIsLoading(false);
     }
 
     return (
@@ -153,7 +226,7 @@ const Shop = () => {
                 <div className="write-a-review">
                     <h1>Review this seller</h1>
                     <p>Share your thoughts with other customers</p>
-                    <button onClick={()=>{setOpenReviewModal(true)}}>Write a seller review</button>
+                    <button onClick={() => { setOpenReviewModal(true) }}>Write a seller review</button>
                 </div>
                 <div className="reviews">
                     {
@@ -174,7 +247,7 @@ const Shop = () => {
                                 </div>
                                 <div>
                                     Review submited on
-                                    <b> {review.submitted_date}</b>
+                                    <b> {showDate(review.createdAt)}</b>
                                 </div>
                                 <div className='review-desc'>{review.desc}</div>
                                 <div className="purchased-products">Purchased Products are
@@ -185,9 +258,11 @@ const Shop = () => {
                                     }
                                 </div>
                                 <div className='original-images' >
-                                    <img src="https://images-do.nyc3.cdn.digitaloceanspaces.com/lAVtCJXFVr/product_images/1638351540.AP0015.jpeg" alt="" />
-                                    <img src="https://images-do.nyc3.cdn.digitaloceanspaces.com/lAVtCJXFVr/product_images/1638351540.AP0015.jpeg" alt="" />
-                                    <img src="https://images-do.nyc3.cdn.digitaloceanspaces.com/lAVtCJXFVr/product_images/1638351540.AP0015.jpeg" alt="" />
+                                    {
+                                        review.item_image
+                                        &&
+                                        <img src={review.item_image} alt="" />
+                                    }
                                 </div>
                             </div>
                         )
@@ -204,31 +279,37 @@ const Shop = () => {
                         <button onClick={() => { setOpenReviewModal(false) }} >X</button>
                     </div>
                     <form >
-                        <input type="text" placeholder='Describe seller in brief' onChange={(e) => { setBriefAboutSeller(e.target.value) }} />
+                        <input type="text" placeholder='One thing you like about the seller' onChange={(e) => { setBriefAboutSeller(e.target.value) }} />
                         <input type="number" min={1} max={5} placeholder='Rate seller out of 5' onChange={(e) => { setInputSellerRating(e.target.value) }} />
-                        <input type="text" placeholder='Todays date ' onChange={(e) => { setTodaysDate(e.target.value) }} />
-                        <input type="text" placeholder='Purchased products by you ' onChange={(e) => { setPurchasedProducts(e.target.value) }} />
+                        {/* <input type="text" placeholder='Purchased products by you ' onChange={(e) => { setPurchasedProducts(e.target.value) }} /> */}
 
-                        {/* <div className="dropdown-container">
+                        <div className="dropdown-container">
                             <Select
-                                options={products}
+                                options={allProducts}
                                 placeholder="Product purchased by you "
                                 value={purchasedProducts}
-                                // onChange={handleSize}
+                                onChange={handlePurchasedProducts}
                                 isSearchable={true}
                                 isMulti
                             />
-                        </div> */}
+                        </div>
                         <input type="text" placeholder='explain why you like/dislike seller ' onChange={(e) => { setReviewDescription(e.target.value) }} />
                         <div className="prd-img">
                             <label style={{ marginBottom: "8px" }}>Upload product image if any bought by you</label>
-                            <input type="file" />
+                            <input type="file" onChange={(e) => { setProductImage(e.target.files[0]) }} />
                         </div>
                         <button onClick={(e) => { postReview(e) }} >Post this Review</button>
                     </form>
                 </div>
 
             </Modal>
+            {
+                isLoading
+                ?
+                <Loading />
+                :
+                ""
+            }
         </div>
     )
 }

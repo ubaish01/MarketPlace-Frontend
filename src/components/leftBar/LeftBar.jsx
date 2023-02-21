@@ -19,8 +19,10 @@ import logOutIcon from "../../assets/icons/logout-icon.png"
 import { useDispatch } from 'react-redux';
 import { logout } from "../../redux/userRedux";
 import { useSelector } from "react-redux";
-import { createNewProduct, updateUser } from '../../redux/apiCalls';
+import { createNewProduct, updateUser, verifyOtp } from '../../redux/apiCalls';
 import axios from 'axios';
+import { verified } from "../../redux/userRedux";
+import Loading from '../loading/Loading';
 
 
 
@@ -28,7 +30,7 @@ import axios from 'axios';
 
 const LeftBar = () => {
     var user = useSelector((state) => state.user.currentUser);
-    const [isSeller,setIsSeller] = useState(user.isSeller)
+    const [isSeller, setIsSeller] = useState(user.isSeller)
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
     const [phone, setPhone] = useState(user.phone);
@@ -40,20 +42,24 @@ const LeftBar = () => {
     const [profileImage, setProfileImage] = useState();
     const [profileImageUrl, setProfileImageUrl] = useState(user.dp);
     const [productImageUrl, setProductImageUrl] = useState();
+    const [inputOtp, setInputOtp] = useState();
 
-    const [productName,setProductName] = useState();
-    const [productPrice,setProductPrice] = useState();
-    const [productImage,setProductImage] = useState();
-    const [productColors,setProductColors] = useState();
-    const [productSizes,setProductSizes] = useState();
+    const [productName, setProductName] = useState();
+    const [productPrice, setProductPrice] = useState();
+    const [productImage, setProductImage] = useState();
+    const [productColors, setProductColors] = useState();
+    const [productSizes, setProductSizes] = useState();
 
     const navigate = useNavigate();
     const [productModalOpen, setProductModalOpen] = useState(false);
+    // const [verifyMailModal,setVerifyMailModal] = useState(true);
     const [profileModal, setProfileModal] = useState(false);
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState();
-    const [isLoading, setIsLoading] = useState(0)
+    const [isLoading,setIsLoading] = useState(false);
+
+
     const dispatch = useDispatch();
 
     const closeAddProductModal = () => {
@@ -71,7 +77,7 @@ const LeftBar = () => {
     function handleColors(data) {
         setSelectedColors(data);
         var items = [];
-        data.map(item=>{
+        data.map(item => {
             items.push(item.value);
         })
         setProductColors(items);
@@ -79,7 +85,7 @@ const LeftBar = () => {
     function handleSize(data) {
         setSelectedSizes(data);
         var items = [];
-        data.map(item=>{
+        data.map(item => {
             items.push(item.value);
         })
         setProductSizes(items);
@@ -88,33 +94,43 @@ const LeftBar = () => {
         setSelectedCategory(data);
     }
 
-    const handleDrop = (productImages) => {
-        // Push all the axios request promise into a single array
-        const uploaders = productImages.map(file => {
-            // Initial FormData
-            const formData = new FormData();
-            formData.append("file", file);
-            data.append("upload_preset", "marketplace");
-            data.append("cloud_name", "dds67aw2r");
+    const sendOtp = (e) => {
+        e.preventDefault();
+        console.log(inputOtp)
+        console.log("sending..")
+    }
+    const verifyMail = (e) => {
+        setIsLoading(true);
+        e.preventDefault();
+        const body = {
+            "otp": inputOtp,
+            "user_id": user._id,
+            "isSeller": user.isSeller
+        }
+        console.log(body)
 
-            // Make an AJAX upload request using Axios (replace Cloudinary URL below with your own)
-            return axios.post("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", formData, {
-                headers: { "X-Requested-With": "XMLHttpRequest" },
-            }).then(response => {
-                const data = response.data;
-                const fileURL = data.secure_url // You should store this URL for future references in your app
-                console.log(data);
+
+        verifyOtp(body)
+            .then(() => {
+                dispatch(verified(true));
+                console.log("after dispatch")
+                alert("Account verified successfully")
+                window.location.reload(true);
+                setIsLoading(false);
             })
-        });
+            .catch(() => {
+                console.log("Something went wrong")
+            })
 
-        // Once all the files are uploaded 
-        axios.all(uploaders).then((res) => {
-            console.log(res)
-        });
+            setIsLoading(false);
+
+
+
     }
 
-    const createProduct = async(e) => {
+    const createProduct = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         const data = new FormData();
         data.append("file", productImage);
         data.append("upload_preset", "marketplace");
@@ -128,32 +144,35 @@ const LeftBar = () => {
                 setProductImageUrl(data.url);
                 console.log(productImageUrl);
                 const body = {
-                    "title":productName,
-                    "category":selectedCategory.value.toLowerCase(),
-                    "color":productColors,
-                    "size":productSizes,
-                    "price":productPrice,
-                    "photos":[productImageUrl],
-                    "seller_id":user._id,
-                    "seller_name":user.name,
-                    "city":user.city,
+                    "title": productName,
+                    "category": selectedCategory.value.toLowerCase(),
+                    "color": productColors,
+                    "size": productSizes,
+                    "price": productPrice,
+                    "photos": [productImageUrl],
+                    "seller_id": user._id,
+                    "seller_name": user.name,
+                    "city": user.city,
                 }
-                
+
                 console.log(body);
                 createNewProduct(body)
-                .then(response=>{
-                    alert(response.data.message);
-                    setProfileModal(false);
-                })
-                .catch(err=>{
-                    alert(err.message);
-                    setProfileModal(false);
-                })
+                    .then(response => {
+                        alert(response.data.message);
+                        setProfileModal(false);
+                        setIsLoading(true);
+                    })
+                    .catch(err => {
+                        alert(err.message);
+                        setProfileModal(false);
+                    })
 
             })
             .catch(err => {
                 console.log(err);
             })
+
+            setIsLoading(false);
 
 
 
@@ -161,6 +180,9 @@ const LeftBar = () => {
 
     const updateDetails = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        if(profileImage)
+        {
         const data = new FormData();
         data.append("file", profileImage);
         data.append("upload_preset", "marketplace");
@@ -183,15 +205,42 @@ const LeftBar = () => {
                     "openingTime": openingTime,
                     "closingTime": closingTime,
                     "isSeller": isSeller,
-                    "dp": profileImageUrl
+                    "dp": data.url
                 }
 
+                setIsLoading(false);
                 updateUser(dispatch, body);
                 setProfileModal(false);
             })
             .catch(err => {
                 console.log(err);
             })
+            
+        }
+        else
+        {
+            const body = {
+                "id": user._id,
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "city": city,
+                "address": address,
+                "description": description,
+                "openingTime": openingTime,
+                "closingTime": closingTime,
+                "isSeller": isSeller,
+                "dp": user.dp
+            }
+
+            updateUser(dispatch, body);
+            setProfileModal(false);
+            setIsLoading(false);
+
+        }
+
+        setIsLoading(false);
+
 
 
     }
@@ -224,7 +273,7 @@ const LeftBar = () => {
         { value: "NA", label: "Not Applicable" }
     ];
 
-    
+
 
 
     const category = [
@@ -291,7 +340,7 @@ const LeftBar = () => {
                 <div className="category-items">
                     {
                         categories.map(category =>
-                            <div key={category.value} onClick={()=>{navigate(`/${category.value}`)}} className="category-item">
+                            <div key={category.value} onClick={() => { navigate(`/${category.value}`) }} className="category-item">
                                 <img src={category.icon} alt="" />
                                 <span>{category.label}</span>
                             </div>
@@ -343,7 +392,7 @@ const LeftBar = () => {
                             <button onClick={closeAddProductModal}>X</button>
                         </div>
                         <form >
-                            <input type="text" placeholder='Product name' onChange={(e)=>{setProductName(e.target.value)}} />
+                            <input type="text" placeholder='Product name' onChange={(e) => { setProductName(e.target.value) }} />
                             <div className="dropdown-container">
                                 <Select
                                     options={category}
@@ -373,14 +422,42 @@ const LeftBar = () => {
                                     isMulti
                                 />
                             </div>
-                            <input type="number" placeholder='Price' onChange={(e)=>{setProductPrice(e.target.value)}} />
+                            <input type="number" placeholder='Price' onChange={(e) => { setProductPrice(e.target.value) }} />
                             <div className="prd-img">
                                 <label>Select minimum 3 photos</label>
-                                <input type="file" onChange={(e)=>{setProductImage(e.target.files[0])}} />
+                                <input type="file" onChange={(e) => { setProductImage(e.target.files[0]) }} />
                             </div>
-                            <button onClick={(e)=>{createProduct(e)}}>Add Product</button>
+                            <button onClick={(e) => { createProduct(e) }}>Add Product</button>
                         </form>
                     </div>
+
+                </Modal>
+            </div>
+            <div>
+                <Modal
+                    isOpen={!user.isVerified}
+                    style={{
+                        content: {
+                            top: '50%',
+                            left: '50%',
+                            right: 'auto',
+                            bottom: 'auto',
+                            marginRight: '-50%',
+                            transform: 'translate(-50%, -50%)',
+                        },
+                    }}
+                >
+                    <div className="product-modal" >
+                        <div>
+                            <h3>Verify your email ! Please !</h3>
+                        </div>
+                        <form>
+                            <input type="text" placeholder='Enter the otp sent on your registered mail!' onChange={(e) => { setInputOtp(e.target.value) }} />
+                            <button onClick={(e) => { verifyMail(e) }}>Verify</button>
+                            <button onClick={(e) => { sendOtp(e) }}>Resend Otp</button>
+                        </form>
+                    </div>
+
 
                 </Modal>
             </div>
@@ -420,6 +497,16 @@ const LeftBar = () => {
 
                 </Modal>
             </div>
+
+            {
+                isLoading
+                ?
+                <Loading />
+                :
+                ""
+            }
+
+
 
         </div>
 
