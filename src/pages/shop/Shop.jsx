@@ -111,8 +111,16 @@ const Shop = () => {
 
 
     const postReview = async (e) => {
-        setIsLoading(true);
         e.preventDefault();
+        if(!briefAboutSeller || !inputSellerRating || !reviewDescription || !boughItems )
+        {
+            alert("All the inputs are mandatory !");
+            return;
+        }
+        
+        setIsLoading(true);
+
+
         if (productImage) {
             const data = new FormData();
             data.append("file", productImage);

@@ -29,10 +29,19 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    
+
+    if((isSeller && (!email||!name||!phone||!city||!address||!description||!openingTime||!closingTime||!password))||!isSeller&&(!name||!email||!phone||!password||!city))
+    {
+      setError("Please fill all the required details !");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Password does not match !")
       return;
     }
+
 
     setError("")
 
@@ -101,7 +110,7 @@ const Register = () => {
 
       })
       .catch(err => {
-        setError(res.data.error ? res.data.error : err.message);
+        setError(err.message);
       })
   }
 
@@ -188,7 +197,7 @@ const Register = () => {
                   ?
                   <span>Go to home  <Link to="/home">Cick here</Link></span>
                   :
-                  <span>Already have an account ? <Link to="/login">Register</Link></span>
+                  <span>Already have an account ? <Link to="/login">Login</Link></span>
                 }
               </form>
 

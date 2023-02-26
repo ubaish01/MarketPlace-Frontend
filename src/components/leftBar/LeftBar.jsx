@@ -57,7 +57,7 @@ const LeftBar = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState();
-    const [isLoading,setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const dispatch = useDispatch();
@@ -122,7 +122,7 @@ const LeftBar = () => {
                 console.log("Something went wrong")
             })
 
-            setIsLoading(false);
+        setIsLoading(false);
 
 
 
@@ -130,6 +130,10 @@ const LeftBar = () => {
 
     const createProduct = async (e) => {
         e.preventDefault();
+        // if (!productName || !productImage || !selectedCategory.value || !productColors || !productSizes || !description || !openingTime || !closingTime) {
+        //     alert("Please fill all the required details !");
+        //     return;
+        // }
         setIsLoading(true);
         const data = new FormData();
         data.append("file", productImage);
@@ -149,7 +153,7 @@ const LeftBar = () => {
                     "color": productColors,
                     "size": productSizes,
                     "price": productPrice,
-                    "photos": [productImageUrl],
+                    "photos": [data.url],
                     "seller_id": user._id,
                     "seller_name": user.name,
                     "city": user.city,
@@ -160,7 +164,7 @@ const LeftBar = () => {
                     .then(response => {
                         alert(response.data.message);
                         setProfileModal(false);
-                        setIsLoading(true);
+                        setIsLoading(false);
                     })
                     .catch(err => {
                         alert(err.message);
@@ -172,7 +176,7 @@ const LeftBar = () => {
                 console.log(err);
             })
 
-            setIsLoading(false);
+        setIsLoading(false);
 
 
 
@@ -180,45 +184,57 @@ const LeftBar = () => {
 
     const updateDetails = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        if(profileImage)
-        {
-        const data = new FormData();
-        data.append("file", profileImage);
-        data.append("upload_preset", "marketplace");
-        data.append("cloud_name", "dds67aw2r");
-        await fetch("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", {
-            method: "POST",
-            body: data
-        })
-            .then(res => res.json())
-            .then(data => {
-                setProfileImageUrl(data.url);
-                const body = {
-                    "id": user._id,
-                    "name": name,
-                    "email": email,
-                    "phone": phone,
-                    "city": city,
-                    "address": address,
-                    "description": description,
-                    "openingTime": openingTime,
-                    "closingTime": closingTime,
-                    "isSeller": isSeller,
-                    "dp": data.url
-                }
 
-                setIsLoading(false);
-                updateUser(dispatch, body);
-                setProfileModal(false);
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            
+
+        if (isSeller) {
+            if (!name || !phone || !email || !city || !address || !description || !openingTime || !closingTime) {
+                alert("All the inputs are mandatory !");
+                return;
+            }
         }
-        else
-        {
+        else {
+            if (!name || !phone || !email || !city) {
+                alert("All the inputs are mandatory !");
+                return;
+            }
+        }
+        setIsLoading(true);
+        if (profileImage) {
+            const data = new FormData();
+            data.append("file", profileImage);
+            data.append("upload_preset", "marketplace");
+            data.append("cloud_name", "dds67aw2r");
+            await fetch("https://api.cloudinary.com/v1_1/dds67aw2r/image/upload", {
+                method: "POST",
+                body: data
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setProfileImageUrl(data.url);
+                    const body = {
+                        "id": user._id,
+                        "name": name,
+                        "email": email,
+                        "phone": phone,
+                        "city": city,
+                        "address": address,
+                        "description": description,
+                        "openingTime": openingTime,
+                        "closingTime": closingTime,
+                        "isSeller": isSeller,
+                        "dp": data.url
+                    }
+
+                    setIsLoading(false);
+                    updateUser(dispatch, body);
+                    setProfileModal(false);
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+
+        }
+        else {
             const body = {
                 "id": user._id,
                 "name": name,
@@ -473,7 +489,7 @@ const LeftBar = () => {
                         </div>
                         <form >
                             <input type="text" placeholder='Name' value={name} onChange={(e) => { setName(e.target.value) }} />
-                            <input type="email" placeholder='email' value={email} onChange={(e) => { setEmail(e.target.value) }} />
+                            <input type="email" placeholder='email' value={email} onChange={(e) => { setEmail(e.target.value) }} disabled={true} />
                             <input type="text" placeholder='Contact' value={phone} onChange={(e) => { setPhone(e.target.value) }} />
                             <input type="text" placeholder='City' value={city} onChange={(e) => { setCity(e.target.value) }} />
                             {
@@ -500,10 +516,10 @@ const LeftBar = () => {
 
             {
                 isLoading
-                ?
-                <Loading />
-                :
-                ""
+                    ?
+                    <Loading />
+                    :
+                    ""
             }
 
 

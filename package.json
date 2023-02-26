@@ -29,6 +29,7 @@
     "redux-persist": "^6.0.0",
     "rsuite": "^5.27.0",
     "sass": "^1.57.1",
+    "styled-components": "^5.3.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
